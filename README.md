@@ -12,6 +12,7 @@ Welcome to the 3D variant of the Snake game, one of the "100 best games of all t
 
 Click [here](https://sapienzainteractivegraphicscourse.github.io/final-project-giulianobruzzese/src/Snake3D.html) to play.
 
+*The application has been mainly tested on Firefox 102.0.1, using it on other browsers could compromise some features.
 
 # Project report
 
