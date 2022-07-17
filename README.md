@@ -1,6 +1,6 @@
 # Snake3D
 
-![image](https://user-images.githubusercontent.com/103998520/179405023-a52f6c31-d811-4cae-af49-cabec7b97868.png)
+![image](https://user-images.githubusercontent.com/103998520/179405077-79566d6b-4914-496c-8b18-66a25f216619.png)
 
 Final project for the Interactive Graphics course A.Y. 2021-2022 held by Prof. Marco Schaerf.
 
