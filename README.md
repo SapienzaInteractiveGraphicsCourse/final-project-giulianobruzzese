@@ -1,4 +1,7 @@
 # Snake3D
+
+![image](https://user-images.githubusercontent.com/103998520/179405023-a52f6c31-d811-4cae-af49-cabec7b97868.png)
+
 Final project for the Interactive Graphics course A.Y. 2021-2022 held by Prof. Marco Schaerf.
 
 A simple 3D version of the snake game with animations, lighting effects, textures, mouse drag tracking.
