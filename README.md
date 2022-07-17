@@ -17,4 +17,4 @@ You can read the report [here](https://github.com/SapienzaInteractiveGraphicsCou
 
 # Author
 
-Giuliano Bruzzese [id. 1757334]
+[Giuliano Bruzzese](https://github.com/GiulianoBruzzese) [id. 1757334]
