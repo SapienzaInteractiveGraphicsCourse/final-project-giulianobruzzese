@@ -7,17 +7,25 @@
 <body>
 <div id="FULL-SCREEN" style="top:0px; left:0px;">
 
-	<canvas id="gl-canvas" width="1400" height="700" 	style="position: absolute; top:0px; left:0px;">
+	<canvas id="gl-canvas" name="fs" 
+	width="1400" height="700"
+	style="position: absolute; top:0px; left:0px;">
 	Oops ... your browser doesn't support the HTML5 canvas 	element
 	</canvas>
 
-	<text id="score" style="position: relative; top:0px; 	left:1040px; text-align: center; text-shadow: 4px 4px 0px 	darkorange; font-family: Ink Free; font-size: 140px;"
+	<text id="score" name="fs" 
+	style="position: relative; top:0px;
+	left:1040px; text-align: center; text-shadow: 4px 4px 0px 	darkorange; font-family: Ink Free; font-size: 140px;"
 	>0</text>
 
-	<text id="ready" style="position: fixed; top:235px; 	left:475px; text-align: center; text-shadow: 2px 2px 0px 	darkorange; font-family: Ink Free; font-size: 60px;"
+	<text id="ready" name="fs" 
+	style="position: fixed; top:235px;
+ 	left:475px; text-align: center; text-shadow: 2px 2px 0px 	darkorange; font-family: Ink Free; font-size: 60px;"
 	><b>Are you ready?</b></text>
 
-	<text id="start" style="position: fixed; top:360px; 	left:500px; text-align: center; text-shadow: 4px 4px 0px 	white; font-family: Ink Free; font-size: 60px;"
+	<text id="start" name="fs" 
+	style="position: fixed; top:360px;
+ 	left:500px; text-align: center; text-shadow: 4px 4px 0px 	white; font-family: Ink Free; font-size: 60px;"
 	><b>START GAME</b></text>
 	
 </div>
@@ -71,14 +79,15 @@
 
 <div id="Scenario" style="position: absolute; top:628px; left:26px; bottom: 13px; font-family: Ink Free;">
 <b>Scenario:</b>
-<select id="Texture Style" size="1" style="position: relative; top:0px;left:0px; font-family: Ink Free">
+<select id="Texture Style" size="1" style="position: relative; top:0px;left:0px; font-family: Ink Free"
+title="Choose the scenario">
 	<option value="0">Grass field</option>
     	<option value="1">No grass blades</option>
     	<option value="2">No limits</option>
 	<option value="3">Night</option>
 	<option value="4">3D object style</option>
 	<option value="5">Blue</option>
-	<option value="6">2D likely</option>
+	<option value="6">2D-style</option>
 </select>
 </div>
 
@@ -97,7 +106,7 @@ background-color: rgb(0,0,0); background-color: rgba(0,0,0,0.4);">
 
 <p>You can prove the classical snake 2D game experience in the third dimension. Enjoy to change scenarios, to modify the kind of projection or to play on the fullscreen.</p>
 <p>Before...some commands you can find useful to live the game at 100%:</p>
-<p>To move the <b>snake</b> on the game field you have to use the arrows</p>
+<p>To move the <b>snake</b> on the game field you must use the arrows</p>
 <p>- <b>Arrow up</b> to go <b>UP</b></p>
 <p>- <b>Arrow left</b> to go <b>LEFT</b></p>
 <p>- <b>Arrow right</b> to go <b>RIGHT</b></p>
@@ -106,7 +115,7 @@ background-color: rgb(0,0,0); background-color: rgba(0,0,0,0.4);">
 <br></br>
 <p>- <b>Space key</b> to <b>start</b> or put in <b>pause</b> the game</p>
 <p>- <b>Enter key</b> to <b>reset</b> the camera and game field changes</p>
-<p>- <b>Esc key</b> to <b>resize</b> correctly the canvas at the end of the fullscreen rapresentation</p>
+<p>- <b>Esc key</b> to <b>resize</b> correctly the canvas at the end of the fullscreen representation</p>
 <br></br>
 <p>To <b>rotate</b> or <b>translate</b> the <b>game field</b> on the canvas you can use the following keys</p>
 <p>- <b>1</b> to translate game field towards the <b>x positive semiaxis</b></p>
@@ -129,7 +138,7 @@ background-color: rgb(0,0,0); background-color: rgba(0,0,0,0.4);">
 <p>- <b>F</b> to <b>increase the depth</b> of the camera</p>
 <p>- <b>N</b> to <b>decrease the depth</b> of the camera</p>
 <p>- <b>+</b> to <b>increase</b> the field of view y-axis</p>
-<p>- <b>Â­-</b> to <b>decrease</b> the field of view y-axis</p>
+<p>- <b>­-</b> to <b>decrease</b> the field of view y-axis</p>
   
 	</div>
 </div>
@@ -159,7 +168,8 @@ background-color: rgb(0,0,0); background-color: rgba(0,0,0,0.4);">
 	position: relative; top:-10px; left:35px;
 	background-color: #ff8c009c; font-size: 15px;
 	font-style: oblique; font-family:Ink Free; border: black;
-	border-style: solid; border-radius: 10px;">
+	border-style: solid; border-radius: 10px;"
+	title="The button will activate at the end of the game">
 	<b>RESTART</b></button>
 
 
@@ -170,13 +180,15 @@ background-color: rgb(0,0,0); background-color: rgba(0,0,0,0.4);">
 	<input type="radio" name="projection" id="persproj" 	value="perspective" style="position: relative;
 	top:4px; left:0px" checked>
 	<label for="persproj" style="position: relative; 	
-	top:2px; left:0px; font-family: Ink Free;">
+	top:2px; left:0px; font-family: Ink Free;"
+	title="Click to set perspective projection">
 	<b>Perspective projection</b></label>
 
 	<input type="radio" name="projection" id="orthproj" 	value="orthogonal" style="margin-left:1cm;
 	position: relative; top:5px; left:0px">
 	<label for="orthproj" style="position: relative; 
-	top:5px; left:0px; font-family: Ink Free;">
+	top:5px; left:0px; font-family: Ink Free;"
+	title="Click to set orthogonal projection">
 	<b>Orthogonal projection</b></label>
 
 </div>
@@ -186,14 +198,17 @@ style="width: 70px; height: 35px;
 position: relative; top:295px; left:18px;
 background-color: white; font-size: 16px;
 font-style: oblique; font-family: Ink Free; border: black;
-border-style: solid; border-radius: 10px">
+border-style: solid; border-radius: 10px"
+title="Click to mute the music or reactivate it">
 <b> Audio </b></button>
 
-<audio id="audio1" src="../Soundtracks/Snake III JAVA game theme song.mp3" promise="true"></audio>
+<audio id="audio1" src="../Soundtracks/Snake III JAVA game theme song.mp3"></audio>
 <audio id="audio2" src="../Soundtracks/Jeopardy Theme.mp3"></audio>
 <audio id="audio3" src="../Soundtracks/The Price is Right Losing Horn - Gaming Sound Effect (HD).mp3"></audio>
 <audio id="audio4" src="../Soundtracks/Eat Munch 2 Sound Effect.mp3"></audio>
-
+<audio id="audio5" src="../Soundtracks/Waterflame - Jumper.mp3"></audio>
+<audio id="audio6" src="../Soundtracks/Bb Blues (110bpm) Backing track.mp3"></audio>
+<audio id="audio7" src="../Soundtracks/Pokemon ost-Lavandonia.mp3"></audio>
 </body>
 
 <script id="vertex-shader" type="x-shader/x-vertex">
@@ -282,7 +297,7 @@ in float vShininess;
 
 out vec4 fColor;
 
-uniform int isParticle;
+uniform int isSnake;
 uniform int uTextureCase;
 uniform sampler2D uTex0;
 uniform sampler2D uTex1;
@@ -310,7 +325,7 @@ void main()
     		vec3 normal;
 		vec4 color;
 
-	if(isParticle == 1)
+	if(isSnake == 1)
   	{	
     		normal.x = -2.0*(gl_PointCoord.x - 0.5);
     		normal.y = -2.0*(gl_PointCoord.y - 0.5);
@@ -342,7 +357,7 @@ void main()
 		fColor = color * ObjColor;
 	}
 
-	else if(isParticle == 2)
+	else if(isSnake == 2)
 	{
     		normal.x = -2.0*(gl_PointCoord.x - 0.5);
     		normal.y = -2.0*(gl_PointCoord.y - 0.5);
@@ -371,7 +386,7 @@ void main()
 		fColor = color;
 
   	}
-	else if(isParticle == 3)
+	else if(isSnake == 3)
 	{
     		normal.x = -2.0*(gl_PointCoord.x - 0.5);
     		normal.y = -2.0*(gl_PointCoord.y - 0.5);
@@ -399,10 +414,10 @@ void main()
 		
 		fColor = color;
   	}
-	else if(isParticle == 4)
+	else if(isSnake == 4)
 		fColor = vColor;
 
-	else if(isParticle == 5)
+	else if(isSnake == 5)
 	{
     		normal.x = -2.0*(gl_PointCoord.x - 0.5);
     		normal.y = -2.0*(gl_PointCoord.y - 0.5);
@@ -411,20 +426,6 @@ void main()
     		if(normal.z <= 0.0)  discard;
     		normal.z = sqrt(normal.z);
 
-		Kd = max(dot(vL,normal), 0.0);
-		Ks = pow(
-			max(dot(normal,H), 0.0),
-			vShininess
-		);
-		ambient  = vAmbientProduct;
-		diffuse  = Kd * vDiffuseProduct;
-		specular = Ks * vSpecularProduct;
-		if (dot(vL,normal)< 0.0) 
-			specular = vec4(0.0,0.0,0.0,1.0);    	
-		
-		ObjColor = (specular + diffuse + ambient);
-		ObjColor.a = 1.0;
-		
    		vec2 i = vec2(1.0,1.0);
     		vec2 uv = gl_PointCoord.xy/i;
     		vec2 pos = 0.5 - uv;

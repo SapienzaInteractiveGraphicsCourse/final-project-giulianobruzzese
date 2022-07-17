@@ -1,3 +1,13 @@
+/**
+ * @author Giuliano Bruzzese
+ *
+ * @title Snake3D Game
+ *
+ * Project as part of the Interactive Graphics course A.Y.  
+ * 2021-2022
+ *
+ */
+
 "use strict";
 
 var canvas;
@@ -11,6 +21,7 @@ var colorLoc,positionLoc,textureLoc,normalLoc;
 
 var END   = false;
 var START = false;
+var PAUSE = false;
 var FULL  = false;
 var AUDIO = true;
 var changing_direction = false;
@@ -23,6 +34,7 @@ var initialNumSnakeParts = 5;
 var initialPointSize     = 30;
 var initialSpeed         = 0.3;
 var numColors            = 8;
+var currentAngle;
 
 var snake;
 var food;
@@ -39,7 +51,6 @@ var dt    = 100;
 var score = 0;
 var bestScore = score;
 
-
 var numSnakeParts = initialNumSnakeParts;
 var pointSize     = initialPointSize;
 var dx            = 0.05;
@@ -53,6 +64,14 @@ var poison3_x,poison3_z;
 var poison4_x,poison4_z;
 var eye_x, eye_y, eye_z;
 
+var audio1 = document.getElementById("audio1");
+var audio2 = document.getElementById("audio2");
+var audio3 = document.getElementById("audio3");
+var audio4 = document.getElementById("audio4");
+var audio5 = document.getElementById("audio5");
+var audio6 = document.getElementById("audio6");
+var audio7 = document.getElementById("audio7");
+var sound  = audio1;
 
 var translateX =  0.0;
 var translateY =  0.0;
@@ -172,10 +191,10 @@ var game = [];
 
 //-------------------------------------------FIGURES VARIABLES
 
-var gameFieldId   = 0;
-var gameField1Id  = 0;
-var gameField2Id  = 1;
-var gameField3Id  = 2;
+var playingFieldId   = 0;
+var playingField1Id  = 0;
+var playingField2Id  = 1;
+var playingField3Id  = 2;
 var snakeId       = 3;
 var foodId        = 4;
 var sunId         = 5;
@@ -186,10 +205,10 @@ var numAngles = 8;
 var angle     = 0;
 
 var theta = [
-	0, //gameFieldId
-	0, //gameField1Id
-	0, //gameField2Id
-	0, //gameField3Id
+	0, //playingFieldId
+	0, //playingField1Id
+	0, //playingField2Id
+	0, //playingField3Id
 	0, //snakeId
 	0, //foodId
 	0, //sunId
@@ -224,10 +243,10 @@ function initNodes(Id)
     	switch(Id)
 	{
 
-    		case gameFieldId:
-    		case gameField1Id:
-    		case gameField2Id:
-    		case gameField3Id:
+    		case playingFieldId:
+    		case playingField1Id:
+    		case playingField2Id:
+    		case playingField3Id:
 
 			m = translate(
 				translateX,
@@ -236,21 +255,30 @@ function initNodes(Id)
 			);
 	    		m = mult(
 				m,
-				rotate(theta[gameField1Id],vec3(1,0,0))
+				rotate(
+					theta[playingField1Id],
+					vec3(1,0,0)
+				)
 			);
 
 			m = mult(
 				m,
-				rotate(theta[gameField2Id],vec3(0,1,0))
+				rotate(
+					theta[playingField2Id],
+					vec3(0,1,0)
+				)
 			);
 	    		m = mult(
 				m,
-				rotate(theta[gameField3Id],vec3(0,0,1))
+				rotate(
+					theta[playingField3Id],
+					vec3(0,0,1)
+				)
 			);
 
 
-    			game[gameFieldId] = 
-				createNode(m,gameField,null,snakeId);
+    			game[playingFieldId] = 
+				createNode(m,playingField,null,snakeId);
     		
 		break;
 
@@ -326,7 +354,7 @@ function traverse(Id)
 
 //----------------------------------------------GRASS FUNCTION
 
-function gameField()
+function playingField()
 {
 	instanceMatrix = mult(
 		modelViewMatrix,
@@ -339,14 +367,14 @@ function gameField()
 	);
 
 	gl.uniform1i(
-		gl.getUniformLocation(program,"isParticle"),
+		gl.getUniformLocation(program,"isSnake"),
 		0.0
 	);
     	for (var i = 0; i < 6; i++) 
 		gl.drawArrays(gl.TRIANGLE_FAN,i*4,4);
 	
 	gl.uniform1i(
-		gl.getUniformLocation(program,"isParticle"),
+		gl.getUniformLocation(program,"isSnake"),
 		4.0
 	);
 	
@@ -369,13 +397,14 @@ function Snake()
 function drawSnakePart(snakePart)
 {
 	gl.uniform1i(
-		gl.getUniformLocation(program,"isParticle"),
+		gl.getUniformLocation(program,"isSnake"),
 		1.0
 	);
+	for (var i=0; i<numSnakeParts;i++)
 	gl.drawArrays(
 		gl.POINTS,
-		numVertices+numBlades*2,
-		numSnakeParts
+		numVertices+numBlades*2+i,
+		1
 	);
 }
 
@@ -384,7 +413,7 @@ function drawSnakePart(snakePart)
 function Food()
 {
 	gl.uniform1i(
-		gl.getUniformLocation(program,"isParticle"),
+		gl.getUniformLocation(program,"isSnake"),
 		2.0
 	);
 	gl.drawArrays(
@@ -399,7 +428,7 @@ function Food()
 function Sun() 
 {
 	gl.uniform1i(
-		gl.getUniformLocation(program,"isParticle"),
+		gl.getUniformLocation(program,"isSnake"),
 		5.0
 	);
 	if (textureCase != 6)
@@ -417,7 +446,7 @@ function Poison()
 	if(score>=250)
 	{
 		gl.uniform1i(
-			gl.getUniformLocation(program,"isParticle"),
+			gl.getUniformLocation(program,"isSnake"),
 			3.0
 		);
 		if(score<350)
@@ -463,7 +492,7 @@ function myRandom(min, max)
 }
 
 
-//------------------------------GAMEFIELD COMPONENTS FUNCTIONS
+//--------------------------PLAYING FIELD COMPONENTS FUNCTIONS
 
 function quad(a, b, c, d) {
 
@@ -476,19 +505,23 @@ function quad(a, b, c, d) {
      	pointsArray.push(vertices[b]);
     	pointsArray.push(vertices[c]);
      	pointsArray.push(vertices[d]);
-     	GFpointsArray.push(vertices[a]);
+     	
+	GFpointsArray.push(vertices[a]);
      	GFpointsArray.push(vertices[b]);
     	GFpointsArray.push(vertices[c]);
      	GFpointsArray.push(vertices[d]);
-    	texCoordsArray.push(texCoord[0]);
+    	
+	texCoordsArray.push(texCoord[0]);
     	texCoordsArray.push(texCoord[1]);
     	texCoordsArray.push(texCoord[2]);
     	texCoordsArray.push(texCoord[3]);
-    	GFtexCoordsArray.push(texCoord[0]);
+    	
+	GFtexCoordsArray.push(texCoord[0]);
     	GFtexCoordsArray.push(texCoord[1]);
     	GFtexCoordsArray.push(texCoord[2]);
     	GFtexCoordsArray.push(texCoord[3]);
-    	normalsArray.push(normal);
+    	
+	normalsArray.push(normal);
     	normalsArray.push(normal);
     	normalsArray.push(normal);
     	normalsArray.push(normal);
@@ -499,6 +532,7 @@ function quad(a, b, c, d) {
     		colorsArray.push(vec4(0.344,1.0,0.18,1.0));
     		colorsArray.push(vec4(0.344,1.0,0.18,1.0));
 		colorsArray.push(vec4(0.344,1.0,0.18,1.0));
+	
 		GFcolorsArray.push(vec4(0.344,1.0,0.18,1.0));
     		GFcolorsArray.push(vec4(0.344,1.0,0.18,1.0));
     		GFcolorsArray.push(vec4(0.344,1.0,0.18,1.0));
@@ -512,6 +546,7 @@ function quad(a, b, c, d) {
     		colorsArray.push(vec4(0.650,0.338,0.0260,1.0));
     		colorsArray.push(vec4(0.650,0.338,0.0260,1.0));
 		colorsArray.push(vec4(0.650,0.338,0.0260,1.0));
+		
 		GFcolorsArray.push(vec4(0.650,0.338,0.0260,1.0));
     		GFcolorsArray.push(vec4(0.650,0.338,0.0260,1.0));
     		GFcolorsArray.push(vec4(0.650,0.338,0.0260,1.0));
@@ -531,6 +566,7 @@ function colorCube()
     quad( 5, 4, 0, 1 );
 }
 
+//------------------------------------------DRAWBLADE FUNCTION
 
 function drawBlade(n) {
 
@@ -615,6 +651,8 @@ function drawBlade(n) {
 
 }
 
+//-------------------------------------------GEN_FOOD FUNCTION
+
 function gen_food() 
 {  
    	food_x = myRandom(-1.38,1.38);
@@ -641,6 +679,8 @@ function gen_food()
 		}
 	];
 }
+
+//-----------------------------------------GEN_POISON FUNCTION
 
 function gen_poison() 
 {  
@@ -847,6 +887,8 @@ function configureTexture()
 }
 
 
+//-----------------------------------------------INIT FUNCTION
+
 window.onload = function init()
 {
 
@@ -859,108 +901,184 @@ window.onload = function init()
     	
 	gl.enable(gl.CULL_FACE);
     	gl.enable(gl.DEPTH_TEST);
- 
-  	//const ext = gl.getExtension('WEBGL_depth_texture');
-  	//if (!ext){ alert('need WEBGL_depth_texture');}
+     	gl.depthFunc(gl.LEQUAL);
 
 //-------------------------------------------BUTTONS & SLIDERS
+
+
+////////SCENARIOS
 
     	document.getElementById("Texture Style").onclick =
     		function( event) {
           		switch(event.target.index) {
           			case 0: 
 					textureCase = 0;
-					theta[gameField3Id] = 0;
-					initNodes(gameField3Id);
-					theta[gameField2Id] = 0;
-					initNodes(gameField2Id);
-					theta[gameField1Id] = 0;
-					initNodes(gameField1Id);
+					theta[playingField3Id] = 0;
+					initNodes(playingField3Id);
+					theta[playingField2Id] = 0;
+					initNodes(playingField2Id);
+					theta[playingField1Id] = 0;
+					initNodes(playingField1Id);
 					eye_x = 5;
 					eye_y = 5;
 					eye_z = 1;
 					perspectiveV = true;
+					var projection = 
+						document.
+						getElementById("persproj");
+					projection.checked = true;
+
     				break;
 				case 1:
 					textureCase = 1;
-					theta[gameField3Id] = 0;
-					initNodes(gameField3Id);
-					theta[gameField2Id] = 0;
-					initNodes(gameField2Id);
-					theta[gameField1Id] = 0;
-					initNodes(gameField1Id);
+					theta[playingField3Id] = 0;
+					initNodes(playingField3Id);
+					theta[playingField2Id] = 0;
+					initNodes(playingField2Id);
+					theta[playingField1Id] = 0;
+					initNodes(playingField1Id);
 					eye_x = 5;
 					eye_y = 5;
 					eye_z = 1;
 					perspectiveV = true;
+					var projection = 
+						document.
+						getElementById("persproj");
+					projection.checked = true;
+					sound.pause();
+					sound = audio1;
+					if(!PAUSE)
+					{
+						sound.play()
+						sound.loop = true;
+					}
  				break;
 				case 2: 
 					textureCase = 2;
-					theta[gameField3Id] = 0;
-					initNodes(gameField3Id);
-					theta[gameField2Id] = 0;
-					initNodes(gameField2Id);
-					theta[gameField1Id] = 0;
-					initNodes(gameField1Id);
+					theta[playingField3Id] = 0;
+					initNodes(playingField3Id);
+					theta[playingField2Id] = 0;
+					initNodes(playingField2Id);
+					theta[playingField1Id] = 0;
+					initNodes(playingField1Id);
 					eye_x = 5;
 					eye_y = 5;
 					eye_z = 1;
 					perspectiveV = true;
+					var projection = 
+						document.
+						getElementById("persproj");
+					projection.checked = true;
+					sound.pause();
+					sound = audio1;
+					if(!PAUSE)
+					{
+						sound.play()
+						sound.loop = true;
+					}
 				break;
           			case 3: 
 					textureCase = 3;
-					theta[gameField3Id] = 0;
-					initNodes(gameField3Id);
-					theta[gameField2Id] = 0;
-					initNodes(gameField2Id);
-					theta[gameField1Id] = 0;
-					initNodes(gameField1Id);
+					theta[playingField3Id] = 0;
+					initNodes(playingField3Id);
+					theta[playingField2Id] = 0;
+					initNodes(playingField2Id);
+					theta[playingField1Id] = 0;
+					initNodes(playingField1Id);
 					eye_x = 5;
 					eye_y = 5;
 					eye_z = 1;
 					perspectiveV = true;
+					var projection = 
+						document.
+						getElementById("persproj");
+					projection.checked = true;
+					sound.pause();
+					sound = audio7;
+					if(!PAUSE)
+					{
+						sound.play()
+						sound.loop = true;
+					}
     				break;
 				case 4:
 					textureCase = 4;
-					theta[gameField3Id] = 0;
-					initNodes(gameField3Id);
-					theta[gameField2Id] = 0;
-					initNodes(gameField2Id);
-					theta[gameField1Id] = 0;
-					initNodes(gameField1Id);
+					theta[playingField3Id] = 0;
+					initNodes(playingField3Id);
+					theta[playingField2Id] = 0;
+					initNodes(playingField2Id);
+					theta[playingField1Id] = 0;
+					initNodes(playingField1Id);
 					eye_x = 5;
 					eye_y = 5;
 					eye_z = 1;
 					perspectiveV = true;
+					var projection = 
+						document.
+						getElementById("persproj");
+					projection.checked = true;
+					sound.pause();
+					sound = audio5;
+					if(!PAUSE)
+					{
+						sound.play()
+						sound.loop = true;
+					}
  				break;
 				case 5: 
 					textureCase = 5;
-					theta[gameField3Id] = 0;
-					initNodes(gameField3Id);
-					theta[gameField2Id] = 0;
-					initNodes(gameField2Id);
-					theta[gameField1Id] = 0;
-					initNodes(gameField1Id);
+					theta[playingField3Id] = 0;
+					initNodes(playingField3Id);
+					theta[playingField2Id] = 0;
+					initNodes(playingField2Id);
+					theta[playingField1Id] = 0;
+					initNodes(playingField1Id);
 					eye_x = 5;
 					eye_y = 5;
 					eye_z = 1;
 					perspectiveV = true;
+					var projection = 
+						document.
+						getElementById("persproj");
+					projection.checked = true;
+					sound.pause();
+					sound = audio6;
+					if(!PAUSE)
+					{
+						sound.play()
+						sound.loop = true;
+					}
 				break;
 				case 6:
 					textureCase = 6;
-					theta[gameField3Id] = 60;
-					initNodes(gameField3Id);
-					theta[gameField2Id] = 10;
-					initNodes(gameField2Id);
-					theta[gameField1Id] = 0.1;
-					initNodes(gameField1Id);
+					theta[playingField3Id] = 60;
+					initNodes(playingField3Id);
+					theta[playingField2Id] = 10;
+					initNodes(playingField2Id);
+					theta[playingField1Id] = 0.1;
+					initNodes(playingField1Id);
 					eye_x = 4.7;
 					eye_y = 3.0;
 					eye_z = 0.9;
 					perspectiveV = false;
+					var projection = 
+						document.
+						getElementById("orthproj");
+					projection.checked = true;
+					sound.pause();
+					sound = audio1;
+					if(!PAUSE)
+					{
+						sound.play()
+						sound.loop = true;
+					}
 				break;
 			}
 	}
+
+
+
+////////RADIO BUTTONS
 
 	document.getElementById("persproj").onclick =
     	function( event) 
@@ -973,20 +1091,33 @@ window.onload = function init()
 		perspectiveV = false;
 	};
 
+
+
+////////START BUTTON
+
 	document.getElementById("start").onclick =
     	function( event) 
 	{
 		if(!END)
 		{
-			document.getElementById('ready').innerHTML =
-				"";	
-			document.getElementById('start').innerHTML =
-				"";
-			START = true;
-
+		document.getElementById('ready').innerHTML =
+			"";	
+		document.getElementById('start').innerHTML =
+			"";
+		START = true;
+			if(PAUSE)
+			{	
+			sound.play();
+			sound.loop = true;
+			audio2.pause();
+				PAUSE = false;
+			}
 		}          
 	};
 
+
+
+////////RESTART BUTTON
 
 	document.getElementById("restart_button").onclick =
     	function( event) 
@@ -1080,17 +1211,24 @@ window.onload = function init()
 		dx = 0.05;
 		dz = 0.0;
 		count = 0;
-		START = true;
+		START = false;
 		END   = false;
 		changing_direction = false;
-		this.disabled = true;
-		var myAudio = 
-			document.getElementById("audio1")
-		myAudio.play();
-		myAudio.loop = true;
+		this.disabled = true;	
+		document.getElementById('start').innerHTML =
+			"RESTART GAME";
+		document.getElementById('start').style.top =
+			360 + "px";
+ 		document.getElementById('start').style.left = 
+			500 + "px";
+		sound.play();
+		sound.loop = true;
 		
 	}
 
+
+
+////////INFO BUTTON
 
 	var modal = document.getElementById("InfoModal");
 	var btn = document.getElementById("info_button");
@@ -1105,11 +1243,26 @@ window.onload = function init()
 			pause.style.top  = 360 + "px";
 			pause.style.left = 630 + "px";
 			START = false;
+			PAUSE = true;
+		sound.pause();
+		audio2.play();
+		audio2.loop = true;
 		}
 	}
 	span.onclick = function()
 	{
   		modal.style.display = "none";
+		if(!PAUSE)
+		{
+		sound.play();
+		sound.loop = true;
+	}
+	else
+	{
+		sound.pause();
+		audio2.play();
+		audio2.loop = true;
+	}
 	}
 
 	window.onclick = function(event)
@@ -1117,29 +1270,32 @@ window.onload = function init()
 		if (event.target == modal)
 		{
     			modal.style.display = "none";
-			var myAudio = 
-				document.getElementById("audio1")
-			myAudio.play();
-			myAudio.loop = true;
+		if(!PAUSE)
+	{
+		sound.play();
+		sound.loop = true;
+	}
+	else
+	{
+		sound.pause();
+		audio2.play();
+		audio2.loop = true;
+	}
   		}
 	}
+
+
+////////AUDIO BUTTON
 
 	document.getElementById("audio_button").onclick =
     	function( event) 
 	{
 		if(AUDIO)
 		{
-			var myAudio = 
-				document.getElementById("audio1")
-			myAudio.volume = 0.0;
-			
-			var myAudio2 = 
-				document.getElementById("audio2")
-			myAudio2.volume = 0.0;
-
-			var myAudio3 = 
-				document.getElementById("audio3")
-			myAudio3.volume = 0.0;
+			sound.volume = 0.0;
+			audio2.volume = 0.0;
+			audio3.volume = 0.0;
+			audio4.volume = 0.0;
 
 			this.innerHTML =
 				"<b>" + "Mute" + "</b>";
@@ -1148,17 +1304,10 @@ window.onload = function init()
 		}
 		else
 		{
-			var myAudio = 
-				document.getElementById("audio1")
-			myAudio.volume = 1.0;
-
-			var myAudio2 = 
-				document.getElementById("audio2")
-			myAudio2.volume = 1.0;
-			
-			var myAudio3 = 
-				document.getElementById("audio3")
-			myAudio3.volume = 1.0;
+			sound.volume = 1.0;
+			audio2.volume = 1.0;
+			audio3.volume = 1.0;
+			audio4.volume = 1.0;
 
 			this.innerHTML =
 				"<b>" + "Audio" + "</b>";
@@ -1306,8 +1455,8 @@ window.onload = function init()
 	restart.disabled = true;
 
 
-//////////////////////////////////////////////////////////////
 
+//--------------------------------------------------FULLSCREEN
 
 
 	var displayWidth  = canvas.clientWidth;
@@ -1356,17 +1505,63 @@ window.onload = function init()
 	}
 
 
-/////////////////////////////////////////////////////////////    
+//----------------------------------------TRACK MOUSE DRAGGING
+
+  	
+	currentAngle = vec2(0.0, 0.0);
+	var dragging = false;
+	var lastX = -1, lastY = -1;
+  	canvas.onmousedown = function(e)
+	{
+		var x = e.clientX, y = e.clientY;
+    		var rect = e.target.getBoundingClientRect();
+    		if (rect.left <= x 
+		&& x < rect.right 
+		&& rect.top <= y 
+		&& y < rect.bottom)
+		{
+      		lastX = x; lastY = y;
+      		dragging = true;
+    		}
+  	};
+
+  	canvas.onmouseup = function(e) 
+	{ 
+		dragging = false;  
+	};
+	canvas.onmousemove = function(e)
+	{
+    		var x = e.clientX, y = e.clientY;
+    		if (dragging)
+		{
+     			var factor = 100/canvas.height;
+     			var dx = factor * (x - lastX);
+      		var dy = factor * (y - lastY);
+      		currentAngle[0] = Math.max(
+				Math.min(currentAngle[0]+dy,90.0),
+				-90.0
+			);
+      		currentAngle[1] = currentAngle[1] + dx;
+    		}
+    		lastX = x, lastY = y;
+  	};
+    
+
+
+//---------------------------------CALL TO SIMULATION FUNCTION
 
     	simulation();
 
 }
 
+
+//-----------------------------------------SIMULATION FUNCTION
+
 var simulation = function()
 {
 
     	gl.uniform1i(
-		gl.getUniformLocation(program, "isParticle"),
+		gl.getUniformLocation(program, "isSnake"),
 		0
 	);
     	colorCube();
@@ -1380,7 +1575,7 @@ var simulation = function()
 	
 	
     	gl.uniform1i(
-		gl.getUniformLocation(program,"isParticle"),
+		gl.getUniformLocation(program,"isSnake"),
 		1
 	);
 
@@ -1415,7 +1610,7 @@ var simulation = function()
 
 
     	gl.uniform1i(
-		gl.getUniformLocation(program,"isParticle"),
+		gl.getUniformLocation(program,"isSnake"),
 		2
 	);
 	gen_food();
@@ -1424,7 +1619,7 @@ var simulation = function()
 
 
     	gl.uniform1i(
-		gl.getUniformLocation(program,"isParticle"),
+		gl.getUniformLocation(program,"isSnake"),
 		5
 	);
 	sun = [
@@ -1443,7 +1638,7 @@ var simulation = function()
 
 
     	gl.uniform1i(
-		gl.getUniformLocation(program,"isParticle"),
+		gl.getUniformLocation(program,"isSnake"),
 		3
 	);
 	gen_poison();
@@ -1485,7 +1680,9 @@ var simulation = function()
 }
 
 
-//----------------------------------------SIMULATION FUNCTIONS
+
+
+//------------------------------------HAS_GAME_ENDED FUNCTIONS
 
 function has_game_ended() {
 	for (var i = 4; i < snake.length; i++)
@@ -1732,6 +1929,9 @@ function has_game_ended() {
 }
 
 
+
+//-----------------------------------CHANGE_DIRECTION FUNCTION
+
 function change_direction(e)
 {
 	const ENTER_KEY = 13;
@@ -1786,84 +1986,81 @@ function change_direction(e)
 		eye_z 	= 1.0;
     		at  		= vec3(0.0,0.0,0.0);
     		up  		= vec3(0.0,1.0,0.0);
-		theta[gameField1Id] = 0;
-		theta[gameField2Id] = 0;
-		theta[gameField3Id] = 0;
-        	initNodes(gameFieldId);
+		theta[playingField1Id] = 0;
+		theta[playingField2Id] = 0;
+		theta[playingField3Id] = 0;
+        	initNodes(playingFieldId);
 	}
-	if (keyPressed === ONE_KEY)
+	else if (keyPressed === ONE_KEY)
 	{
 		translateX += 1.0;
-        	initNodes(gameFieldId);
+        	initNodes(playingFieldId);
 	}
-	if (keyPressed === TWO_KEY)
+	else if (keyPressed === TWO_KEY)
 	{
 		translateX -= 1.0;
-        	initNodes(gameFieldId);
+        	initNodes(playingFieldId);
 	}
-	if (keyPressed === THREE_KEY)
+	else if (keyPressed === THREE_KEY)
 	{
 		translateY += 1.0;
-        	initNodes(gameFieldId);
+        	initNodes(playingFieldId);
 	}
-	if (keyPressed === FOUR_KEY)
+	else if (keyPressed === FOUR_KEY)
 	{
 		translateY -= 1.0;
-        	initNodes(gameFieldId);
+        	initNodes(playingFieldId);
 	}
-	if (keyPressed === FIVE_KEY)
+	else if (keyPressed === FIVE_KEY)
 	{
 		translateZ += 1.0;
-        	initNodes(gameFieldId);
+        	initNodes(playingFieldId);
 	}
-	if (keyPressed === SIX_KEY)
+	else if (keyPressed === SIX_KEY)
 	{
 		translateZ -= 1.0;
-        	initNodes(gameFieldId);
+        	initNodes(playingFieldId);
 	}
-	if (keyPressed === SEVEN_KEY)
+	else if (keyPressed === SEVEN_KEY)
 	{
-		theta[gameField1Id] += 1.0;
-        	initNodes(gameField1Id);
+		theta[playingField1Id] += 1.0;
+        	initNodes(playingField1Id);
 	}
-	if (keyPressed === EIGHT_KEY)
+	else if (keyPressed === EIGHT_KEY)
 	{
-		theta[gameField2Id] += 1.0;
-        	initNodes(gameField2Id);
+		theta[playingField2Id] += 1.0;
+        	initNodes(playingField2Id);
 	}
-	if (keyPressed === NINE_KEY)
+	else if (keyPressed === NINE_KEY)
 	{
-		theta[gameField3Id] += 1.0;
-        	initNodes(gameField3Id);
+		theta[playingField3Id] += 1.0;
+        	initNodes(playingField3Id);
 	}
-
-
-	if (keyPressed === A_KEY)
+	else if (keyPressed === A_KEY)
 	{
 		eye_x += 0.1;
 	}
-	if (keyPressed === D_KEY)
+	else if (keyPressed === D_KEY)
 	{
 		eye_x -= 0.1;
 	}
-	if (keyPressed === S_KEY)
+	else if (keyPressed === S_KEY)
 	{
 		eye_y -= 0.1;
 	}
-	if (keyPressed === W_KEY)
+	else if (keyPressed === W_KEY)
 	{
 		eye_y += 0.1;
 	}
-	if (keyPressed === E_KEY)
+	else if (keyPressed === E_KEY)
 	{
 		eye_z += 0.1;
 	}
-	if (keyPressed === R_KEY)
+	else if (keyPressed === R_KEY)
 	{
 		eye_z -= 0.1;
 	}
-
-	if (keyPressed === PLUS_KEY)
+	else if (keyPressed === PLUS_KEY)
 	{
 		if(perspectiveV)
 		{ 
@@ -1900,7 +2097,7 @@ function change_direction(e)
 
 		}
 	}
-	if (keyPressed === MINUS_KEY)
+	else if (keyPressed === MINUS_KEY)
 	{
 		if(perspectiveV)
 		{ 
@@ -1933,18 +2130,17 @@ function change_direction(e)
 				pointSize = 1;
 		}
 	}
-	if (keyPressed === N_KEY)
+	else if (keyPressed === N_KEY)
 	{
 		near += 0.5;
 		far  -= 0.5;
 	}
-	if (keyPressed === F_KEY)
+	else if (keyPressed === F_KEY)
 	{
 		near -= 0.5;
 		far  += 0.5;
 	}
-
-	if (keyPressed === ESC_KEY)
+	else if (keyPressed === ESC_KEY)
 	{
 		var c = document.getElementById('gl-canvas');
 		c.width=1400;
@@ -1967,13 +2163,10 @@ function change_direction(e)
 			document.getElementById('start').innerHTML = 
 				"";
 			START = true;
-			var myAudio = 
-				document.getElementById("audio1")
-			myAudio.play();
-			myAudio.loop = true;
-			var myAudio2 = 
-				document.getElementById("audio2")
-			myAudio2.pause();
+			PAUSE = false;
+			sound.play();
+			sound.loop = true;
+			audio2.pause();
 
 		}
 	}    	
@@ -1991,23 +2184,20 @@ function change_direction(e)
 	     	const goingLeft    = dx === -0.05;
 
 		if (keyPressed === SPACE_KEY)
-		{			
-			var pause = document.getElementById('start');
+		{	
+			PAUSE = true;
+			var pause =
+				document.getElementById('start');
 			pause.innerHTML  = "pause";
 			pause.style.top  = 360 + "px";
 			pause.style.left = 630 + "px";
 			START = false;
-			var myAudio = 
-				document.getElementById("audio1")
-			myAudio.pause();
-			var myAudio2 = 
-				document.getElementById("audio2")
-			myAudio2.play();
-			myAudio2.loop = true;
+			sound.pause();
+			audio2.play();
+			audio2.loop = true;
 
 
 		}
-
 	     	if (keyPressed === LEFT_KEY && !goingRight)
 		{
 	       	dx = -0.05;
@@ -2125,19 +2315,20 @@ function change_direction(e)
 document.onkeydown = change_direction;
 
 
+
+//---------------------------------------------UPDATE FUNCTION
+
 var update = function()
 {
+
+//-----------------------------CALL TO HAS_GAME_ENDED FUNCTION
 	if (has_game_ended())
 	{
 		var end1 = document.getElementById('ready');
-		var myAudio = 
-			document.getElementById("audio1")
-		myAudio.pause();
+		sound.pause();
 		if (count<1)
 		{
-			var myAudio3 = 
-				document.getElementById("audio3")
-			myAudio3.play();
+			audio3.play();
 			count++;
 		}
 		end1.innerHTML = "GAME OVER";
@@ -2181,9 +2372,6 @@ var update = function()
 		var scenario = 
 			document.getElementById("Texture Style");
 		scenario.disabled = true;
-		var restart = 
-			document.getElementById("restart_button");
-		restart.disabled = false;
 
 		if (lightPosition[1]>-3.0)
 		{
@@ -2243,6 +2431,13 @@ var update = function()
 				flatten(colorsArray)
 			);
 		}
+		else
+	{
+		var restart = 
+			document.
+			getElementById("restart_button");
+		restart.disabled = false;
+		}
 		return;
 	}
      	changing_direction = false;
@@ -2281,15 +2476,13 @@ var update = function()
 		&&
 		(snake[0].position[2] - 
 		food[0].position[2]).toFixed(1) == 0.0
-	) 	has_eaten_food = true;
+	)
+	 	has_eaten_food = true;
 	else	has_eaten_food = false;
 
 	if (has_eaten_food)
 	{
-		var myAudio4 = 
-			document.getElementById("audio4")
-		myAudio4.play();
-
+		audio4.play();
 		score += 10;
 		document.getElementById('score').innerHTML = score;
 		gen_food();
@@ -2356,12 +2549,18 @@ var update = function()
     	gl.bindBuffer(gl.ARRAY_BUFFER,cBufferId);
     	gl.bufferSubData(gl.ARRAY_BUFFER,0,flatten(colorsArray));
 
+
 //----------------------------------CALL TO InitNODES FUNCTION
 
 	for(var i=0; i<numNodes; i++) initNodes(i);
 
+//--------------------------------CALL TO PASSONBLADE FUNCTION
+
 	passOnBlade();
 }
+
+
+//----------------------------------------PASSONBLADE FUNCTION
 
 function passOnBlade()
 {
@@ -2381,6 +2580,7 @@ function passOnBlade()
 }
 
 
+//---------------------------------------------RENDER FUNCTION
 
 var render = function()
 {
@@ -2390,6 +2590,8 @@ var render = function()
 	{
   		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 		
+
+		////MANAGEMENT TEXTURECASES AND HTML ELEMENTS
 		if (textureCase == 6)
 		{
 			gl.clearColor(.04,1.0,0.36,1.0);
@@ -2783,6 +2985,8 @@ var render = function()
 
 		}
 
+
+	/////MANAGEMENT MODEL VIEW MATRIX AND PROJECTION MATRIX
     	if (perspectiveV)
 		projectionMatrix = perspective(
 			fovy,
@@ -2804,6 +3008,14 @@ var render = function()
 		eye = vec3(eye_x,eye_y,eye_z);
 	    	modelViewMatrix  = lookAt(eye, at, up);
 
+  		modelViewMatrix = mult(
+			modelViewMatrix,
+			rotate(currentAngle[0],0.0,0.0,1.0)
+		);
+		modelViewMatrix = mult(
+			modelViewMatrix,
+			rotate(-currentAngle[1],0.0,1.0,0.0)
+		);
     		gl.uniformMatrix4fv(
 			gl.getUniformLocation(
 				program,
@@ -2878,8 +3090,14 @@ var render = function()
      		  	textureCase
 	    	);
 
-		traverse(gameFieldId);
+
+//-----------------------------------CALL TO TRAVERSE FUNCTION
+		traverse(playingFieldId);
+
+//-------------------------------------CALL TO UPDATE FUNCTION
+
 		if(START) update();
+
 		requestAnimationFrame(render);
 
 	}, dt)
