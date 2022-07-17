@@ -10,4 +10,4 @@ Welcome to the 3D variant of the Snake game, one of the "100 best games of all t
 
 #Project report
 
-You can read the report here: Final Project.pdf
+You can read the report [here](https://github.com/SapienzaInteractiveGraphicsCourse/final-project-giulianobruzzese/blob/main/Final%20Project.pdf).
