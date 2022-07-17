@@ -1,6 +1,6 @@
 # Snake3D
 
-![image](https://user-images.githubusercontent.com/103998520/179405077-79566d6b-4914-496c-8b18-66a25f216619.png)
+![image](https://github.com/SapienzaInteractiveGraphicsCourse/final-project-giulianobruzzese/blob/main/images/Game%20homepage.png)
 
 Final project for the Interactive Graphics course A.Y. 2021-2022 held by Prof. Marco Schaerf.
 
