@@ -11,6 +11,10 @@ A simple 3D version of the snake game with animations, lighting effects, texture
 Welcome to the 3D variant of the Snake game, one of the "100 best games of all time". The object of the game is to eat as much red fruit as possible, but be careful not to bite or crash. Use the arrow keys to move the snake in space in search of food and I recommend, if the food is purple avoid it, it will not do much good for your snake.
 
 
-#Project report
+# Project report
 
 You can read the report [here](https://github.com/SapienzaInteractiveGraphicsCourse/final-project-giulianobruzzese/blob/main/Final%20Project.pdf).
+
+# Author
+
+Giuliano Bruzzese [id. 1757334]
